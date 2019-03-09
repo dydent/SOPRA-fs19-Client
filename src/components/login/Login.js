@@ -75,10 +75,15 @@ class Login extends React.Component {
   constructor() {
     super();
     this.state = {
-      name: null,
-      username: null
+      username: null,
+      password: null
     };
   }
+
+  register () {
+    this.props.history.push(`/register`);
+    }
+
   /**
    * HTTP POST request is sent to the backend.
    * If the request is successful, a new user is returned to the front-end and its token is stored in the localStorage.
@@ -91,7 +96,7 @@ class Login extends React.Component {
       },
       body: JSON.stringify({
         username: this.state.username,
-        name: this.state.name
+        name: this.state.password
       })
     })
       .then(response => response.json())
@@ -122,6 +127,9 @@ class Login extends React.Component {
     this.setState({ [key]: value });
   }
 
+  filledIn () {
+    return !this.state.username || !this.state.name
+  };
   /**
    * componentDidMount() is invoked immediately after a component is mounted (inserted into the tree).
    * Initialization that requires DOM nodes should go here.
@@ -143,7 +151,7 @@ class Login extends React.Component {
                 this.handleInputChange("username", e.target.value);
               }}
             />
-            <Label>Name</Label>
+            <Label>Password</Label>
             <InputField
               placeholder="Enter here.."
               onChange={e => {
@@ -151,14 +159,22 @@ class Login extends React.Component {
               }}
             />
             <ButtonContainer>
-              <Button
-                disabled={!this.state.username || !this.state.name}
+              <Button /* log in button */
+                disabled={this.filledIn()}
                 width="50%"
                 onClick={() => {
                   this.login();
                 }}
               >
                 Login
+              </Button>
+              <Button /* register button */
+                  width="50%"
+                  onClick={() => {
+                    this.register();
+                  }}
+              >
+                Register
               </Button>
             </ButtonContainer>
           </Form>
