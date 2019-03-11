@@ -2,7 +2,7 @@ import styled from "styled-components";
 
 export const Button = styled.button`
   &:hover {
-    transform: translateY(-2px);
+    transform: translateY(-3px);
   }
   padding: 6px;
   font-weight: 700;

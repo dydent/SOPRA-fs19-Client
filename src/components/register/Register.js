@@ -75,6 +75,16 @@ class Register extends React.Component {
             || this.state.passwordNotIdentical
     };
 
+    checkPassword(){
+        if (this.state.password!==this.state.passwordRepeat) {
+            this.setState({[this.state.passwordNotIdentical] : true})
+            return alert("password not identical")
+        }
+        else {
+            this.register()
+        }
+    };
+
     handleInputChange(key, value) {
         this.setState({ [key]: value });
     }
@@ -94,14 +104,27 @@ class Register extends React.Component {
                 passwordNotIdentical: this.state.passwordNotIdentical
             })
         })
-            .then(response => response.json())
-            .then(returnedUser => {
-                const user = new User(returnedUser);
-                // store the token into the local storage
-                localStorage.setItem("token", user.token);
-                // user login successfully worked --> navigate to the route /game in the GameRouter
-                this.props.history.push(`/game`);
+            .then(async response => {
+                if (!response.ok) {
+                    const error = await response.json();
+                    alert(error.message);
+                    this.props.history.push(`/register`);
+                }
+               else{const user = new User(response);
+                    // store the token into the local storage
+                    localStorage.setItem("token", user.token);
+                    // user login successfully worked --> navigate to the route /game in the GameRouter
+                    this.props.history.push(`/game`);
+
+                }
             })
+            // .then(returnedUser => {
+            //     const user = new User(returnedUser);
+            //     // store the token into the local storage
+            //     localStorage.setItem("token", user.token);
+            //     // user login successfully worked --> navigate to the route /game in the GameRouter
+            //     this.props.history.push(`/game`);
+            // })
             .catch(err => {
                 if (err.message.match(/Failed to fetch/)) {
                     alert("The server cannot be reached. Did you start it?");
@@ -141,6 +164,7 @@ class Register extends React.Component {
                         />
                         <Label>Password</Label>
                         <InputField
+                            type={"password"}
                             placeholder="Enter here.."
                             onChange={e => {
                                 this.handleInputChange("password", e.target.value);
@@ -148,6 +172,7 @@ class Register extends React.Component {
                         />
                         <Label>Repeat Password</Label>
                         <InputField
+                            type={"password"}
                             placeholder="Enter here.."
                             onChange={e => {
                                 this.handleInputChange("passwordRepeat", e.target.value);
@@ -155,9 +180,10 @@ class Register extends React.Component {
                         />
                         <ButtonContainer>
                             <Button /* register button */
+                                color="red"
                                 disabled={this.filledIn()} width="50%"
                                 onClick={() => {
-                                    this.register();
+                                    this.checkPassword();
                                 }}
                             >
                                 register

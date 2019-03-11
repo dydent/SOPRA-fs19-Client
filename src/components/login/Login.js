@@ -89,23 +89,27 @@ class Login extends React.Component {
    * If the request is successful, a new user is returned to the front-end and its token is stored in the localStorage.
    */
   login() {
-    fetch(`${getDomain()}/users`, {
+    fetch(`${getDomain()}/login`, {
       method: "POST",
-      headers: {
-        "Content-Type": "application/json"
-      },
-      body: JSON.stringify({
-        username: this.state.username,
-        name: this.state.password
-      })
+      headers: {        "Content-Type": "application/json"      },
+      body: JSON.stringify({        username: this.state.username, password: this.state.password    })
     })
-      .then(response => response.json())
-      .then(returnedUser => {
-        const user = new User(returnedUser);
-        // store the token into the local storage
-        localStorage.setItem("token", user.token);
-        // user login successfully worked --> navigate to the route /game in the GameRouter
-        this.props.history.push(`/game`);
+      .then(async response => {
+        if (!response.ok) {
+          const error = await response.json();
+          alert(error.message);
+          this.setState({ username: "" });
+          this.setState({ password: "" });
+          if (error.message.match(/Please register first/)){
+            this.props.history.push(`/register`);
+          }
+        } else {
+          const user = new User(await response.json());
+
+          localStorage.setItem("token", user.token);
+          this.props.history.push(`/game`);
+        }
+
       })
       .catch(err => {
         if (err.message.match(/Failed to fetch/)) {
@@ -128,7 +132,7 @@ class Login extends React.Component {
   }
 
   filledIn () {
-    return !this.state.username || !this.state.name
+    return !this.state.username || !this.state.password
   };
   /**
    * componentDidMount() is invoked immediately after a component is mounted (inserted into the tree).
@@ -153,9 +157,10 @@ class Login extends React.Component {
             />
             <Label>Password</Label>
             <InputField
+                type={"password"}
               placeholder="Enter here.."
               onChange={e => {
-                this.handleInputChange("name", e.target.value);
+                this.handleInputChange("password", e.target.value);
               }}
             />
             <ButtonContainer>
