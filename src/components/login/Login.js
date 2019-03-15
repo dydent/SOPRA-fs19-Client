@@ -104,8 +104,9 @@ class Login extends React.Component {
             this.props.history.push(`/register`);
           }
         } else {
+          console.log(response.status);
           const user = new User(await response.json());
-
+          localStorage.setItem("id", user.id);
           localStorage.setItem("token", user.token);
           this.props.history.push(`/game`);
         }

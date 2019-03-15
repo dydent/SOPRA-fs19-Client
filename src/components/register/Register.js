@@ -105,26 +105,22 @@ class Register extends React.Component {
             })
         })
             .then(async response => {
-                if (!response.ok) {
+                if (!response.ok) { // check for right response status 201 = CREATED
                     const error = await response.json();
                     alert(error.message);
                     this.props.history.push(`/register`);
                 }
-               else{const user = new User(response);
-                    // store the token into the local storage
+               else{
+                    console.log(response.status);
+                    const user = new User(await response.json());
+                    localStorage.setItem("id", user.id);
                     localStorage.setItem("token", user.token);
+                    console.log(user.token);
                     // user login successfully worked --> navigate to the route /game in the GameRouter
-                    this.props.history.push(`/game`);
+                    this.props.history.push("/login");
 
                 }
             })
-            // .then(returnedUser => {
-            //     const user = new User(returnedUser);
-            //     // store the token into the local storage
-            //     localStorage.setItem("token", user.token);
-            //     // user login successfully worked --> navigate to the route /game in the GameRouter
-            //     this.props.history.push(`/game`);
-            // })
             .catch(err => {
                 if (err.message.match(/Failed to fetch/)) {
                     alert("The server cannot be reached. Did you start it?");
@@ -132,7 +128,6 @@ class Register extends React.Component {
                     alert(`Something went wrong during the login: ${err.message}`);
                 }
             });
-
     };
 
     render() {

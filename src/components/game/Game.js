@@ -24,18 +24,25 @@ const PlayerContainer = styled.li`
   justify-content: center;
 `;
 
+
 class Game extends React.Component {
   constructor() {
     super();
     this.state = {
-      users: null
+      users: null,
+
     };
   }
 
-  logout() {
-    localStorage.removeItem("token");
-    this.props.history.push("/login");
+  showUser(id) {
+    this.props.history.push(`/user/${id}`);
   }
+
+  logout() {
+      localStorage.removeItem("token");
+      localStorage.removeItem("id");
+      this.props.history.push("/login");
+}
 
   componentDidMount() {
     fetch(`${getDomain()}/users`, {
@@ -44,15 +51,18 @@ class Game extends React.Component {
         "Content-Type": "application/json"
       }
     })
-      .then(response => response.json())
-      .then(async users => {
-        // delays continuous execution of an async operation for 0.8 seconds.
-        // This is just a fake async call, so that the spinner can be displayed
-        // feel free to remove it :)
-        await new Promise(resolve => setTimeout(resolve, 800));
+        .then(async res => {
+        if (!res.ok) {
+            const error = await res.json();
+            alert(error.message);
+            console.log(res.status);
+        } else {
+            const users = await res.json();
+            this.setState({ users });
+            console.log(res.status);
 
-        this.setState({ users });
-      })
+        }
+        })
       .catch(err => {
         console.log(err);
         alert("Something went wrong fetching the users: " + err);
@@ -72,7 +82,10 @@ class Game extends React.Component {
               {this.state.users.map(user => {
                 return (
                   <PlayerContainer key={user.id}>
-                    <Player user={user} />
+                    <Player
+                        user={user}
+                        showUser={() =>{this.showUser(user.id)}}
+                    />
                   </PlayerContainer>
                 );
               })}
